@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FullLabProject</string>
+    <string name="fcm_sender_id">130432168762</string>
 </resources>

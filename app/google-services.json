@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "130432168762",
+    "firebase_url": "https://fulllabproject.firebaseio.com",
+    "project_id": "fulllabproject",
+    "storage_bucket": "fulllabproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:130432168762:android:f53a3891216e1506",
+        "android_client_info": {
+          "package_name": "br.com.blennersilva.fulllabproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "130432168762-5o6ffebn83hoac0mmmpl7t8rgbe6vm4n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.blennersilva.fulllabproject",
+            "certificate_hash": "073ae9113f324660983ee34d54291097bf1587b4"
+          }
+        },
+        {
+          "client_id": "130432168762-1gt83ikulpsdctig4fskv9uvmqaqtjsd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiaUGN1k0TEuLymaa-vI1yeJ8wnOUK_Hg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "130432168762-1gt83ikulpsdctig4fskv9uvmqaqtjsd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,19 +1,19 @@
 package br.com.blennersilva.fulllabproject;
 
-import android.content.res.Resources;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
 
+import com.claudiodegio.msv.MaterialSearchView;
+import com.claudiodegio.msv.OnSearchViewListener;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.pushwoosh.Pushwoosh;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,18 +31,55 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ProductAdapter productAdapter;
     ArrayList<Product> productArrayList;
+    MaterialSearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+
+        searchView = findViewById(R.id.sv);
+
+        searchView.setOnSearchViewListener(new OnSearchViewListener() {
+            @Override
+            public void onSearchViewShown() {
+
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                searchProductList(s);
+                recyclerView.setAdapter(null);
+                return false;
+            }
+
+            @Override
+            public void onQueryTextChange(String s) {
+
+            }
+        });
+        Pushwoosh.getInstance().registerForPushNotifications();
         recyclerView = findViewById(R.id.rvProducts);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(10), true));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         requestProductList();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.manu, menu);
+
+        MenuItem item = menu.findItem(R.id.action_search);
+        searchView.setMenuItem(item);
+        return true;
     }
 
     private void requestProductList() {
@@ -73,47 +110,33 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
+    private void searchProductList(String query) {
+        AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+        params.put("Query", query);
+        params.put("Offset", 0);
+        params.put("Size", 10);
+        asyncHttpClient.post("https://desafio.mobfiq.com.br/Search/Criteria", params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
 
-        private int spanCount;
-        private int spacing;
-        private boolean includeEdge;
-
-        public GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge) {
-            this.spanCount = spanCount;
-            this.spacing = spacing;
-            this.includeEdge = includeEdge;
-        }
-
-        @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-            int position = parent.getChildPosition(view); // item position
-            int column = position % spanCount; // item column
-
-            if (includeEdge) {
-                outRect.left = spacing - column * spacing / spanCount; // spacing - column * ((1f / spanCount) * spacing)
-                outRect.right = (column + 1) * spacing / spanCount; // (column + 1) * ((1f / spanCount) * spacing)
-
-                if (position < spanCount) { // top edge
-                    outRect.top = spacing;
+                try {
+                    productArrayList = JsonUtils.parseProductsFromJason(response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                outRect.bottom = spacing; // item bottom
-            } else {
-                outRect.left = column * spacing / spanCount; // column * ((1f / spanCount) * spacing)
-                outRect.right = spacing - (column + 1) * spacing / spanCount; // spacing - (column + 1) * ((1f /    spanCount) * spacing)
-                if (position >= spanCount) {
-                    outRect.top = spacing; // item top
-                }
+
+                productAdapter = new ProductAdapter(MainActivity.this, productArrayList);
+                recyclerView.setAdapter(productAdapter);
+                productAdapter.notifyDataSetChanged();
             }
-        }
-    }
 
-    /**
-     * Converting dp to pixel
-     */
-    private int dpToPx(int dp) {
-        Resources r = getResources();
-        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+        });
     }
 
 }
