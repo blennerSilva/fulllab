@@ -8,10 +8,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import br.com.blennersilva.fulllabproject.model.Category;
 import br.com.blennersilva.fulllabproject.model.Images;
 import br.com.blennersilva.fulllabproject.model.Product;
 import br.com.blennersilva.fulllabproject.model.Sellers;
 import br.com.blennersilva.fulllabproject.model.Skus;
+import br.com.blennersilva.fulllabproject.model.SubCategory;
 
 /**
  * Created by blennersilva on 13/01/18.
@@ -21,6 +23,8 @@ public class JsonUtils {
     private static ArrayList<Skus> skusArrayList = new ArrayList<>();
     private static ArrayList<Sellers> sellersArrayList = new ArrayList<>();
     private static ArrayList<Images> imagesArrayList = new ArrayList<>();
+    private static ArrayList<Category> categoryArrayList = new ArrayList<>();
+    private static ArrayList<SubCategory> subCategoryArrayList = new ArrayList<>();
 
     public static ArrayList<Product> parseProductsFromJason(JSONObject response) throws JSONException {
         Product product = new Product();
@@ -99,5 +103,40 @@ public class JsonUtils {
 
         }
         return imagesArrayList;
+    }
+
+    public static ArrayList<Category> parseCategoryFromJson(JSONObject response) throws JSONException {
+        JSONArray jsonArray = response.getJSONArray("Categories");
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+            Category category = new Category();
+            category.setId(jsonObject.getInt("Id"));
+            category.setName(jsonObject.getString("Name"));
+            category.setSubCategoryArrayList(parseSubcategoryFromJson(jsonObject));
+
+            categoryArrayList.add(category);
+
+        }
+
+        return categoryArrayList;
+    }
+
+    private static ArrayList<SubCategory> parseSubcategoryFromJson(JSONObject responde) throws JSONException {
+        JSONArray jsonArray = responde.getJSONArray("SubCategories");
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+            SubCategory subCategory = new SubCategory();
+
+            subCategory.setId(jsonObject.getInt("Id"));
+            subCategory.setName(jsonObject.getString("Name"));
+
+            subCategoryArrayList.add(subCategory);
+        }
+
+        return subCategoryArrayList;
     }
 }

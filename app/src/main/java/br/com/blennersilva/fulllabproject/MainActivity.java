@@ -1,20 +1,26 @@
 package br.com.blennersilva.fulllabproject;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.claudiodegio.msv.MaterialSearchView;
-import com.claudiodegio.msv.OnSearchViewListener;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.pushwoosh.Pushwoosh;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,37 +37,26 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ProductAdapter productAdapter;
     ArrayList<Product> productArrayList;
-    MaterialSearchView searchView;
+    SearchView searchView;
+    TextView errorText;
+    ImageView errorImg;
+    Button errorBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.activity_main);
 
-        searchView = findViewById(R.id.sv);
+        errorText = findViewById(R.id.errorTxt);
+        errorImg = findViewById(R.id.errorImg);
+        errorBtn = findViewById(R.id.errorbutton);
 
-        searchView.setOnSearchViewListener(new OnSearchViewListener() {
+        errorBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSearchViewShown() {
-
-            }
-
-            @Override
-            public void onSearchViewClosed() {
-
-            }
-
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                searchProductList(s);
-                recyclerView.setAdapter(null);
-                return false;
-            }
-
-            @Override
-            public void onQueryTextChange(String s) {
-
+            public void onClick(View view) {
+                requestProductList();
             }
         });
         Pushwoosh.getInstance().registerForPushNotifications();
@@ -77,9 +72,36 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.manu, menu);
 
-        MenuItem item = menu.findItem(R.id.action_search);
-        searchView.setMenuItem(item);
+        MenuItem myActionMenuItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView) myActionMenuItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchProductList(query);
+                if (!searchView.isIconified()) {
+                    searchView.setIconified(true);
+                }
+                myActionMenuItem.collapseActionView();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
         return true;
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.category:
+                Intent intent = new Intent(MainActivity.this, CategoryActivity.class);
+                startActivity(intent);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void requestProductList() {
@@ -101,13 +123,39 @@ public class MainActivity extends AppCompatActivity {
 
                 productAdapter = new ProductAdapter(MainActivity.this, productArrayList);
                 recyclerView.setAdapter(productAdapter);
+                hideErro();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
+                showError();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                showError();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                showError();
             }
         });
+    }
+
+    private void hideErro() {
+        errorBtn.setVisibility(View.GONE);
+        errorImg.setVisibility(View.GONE);
+        errorText.setVisibility(View.GONE);
+    }
+
+    private void showError() {
+        errorText.setVisibility(View.VISIBLE);
+        errorImg.setVisibility(View.VISIBLE);
+        errorBtn.setVisibility(View.VISIBLE);
     }
 
     private void searchProductList(String query) {
@@ -138,5 +186,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 }
