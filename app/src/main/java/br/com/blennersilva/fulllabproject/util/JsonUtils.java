@@ -20,36 +20,35 @@ import br.com.blennersilva.fulllabproject.model.SubCategory;
  */
 
 public class JsonUtils {
-    private static ArrayList<Skus> skusArrayList = new ArrayList<>();
-    private static ArrayList<Sellers> sellersArrayList = new ArrayList<>();
-    private static ArrayList<Images> imagesArrayList = new ArrayList<>();
-    private static ArrayList<Category> categoryArrayList = new ArrayList<>();
-    private static ArrayList<SubCategory> subCategoryArrayList = new ArrayList<>();
 
     public static ArrayList<Product> parseProductsFromJason(JSONObject response) throws JSONException {
-        Product product = new Product();
         ArrayList<Product> productArrayList = new ArrayList<>();
-
         JSONArray jsonArray = response.getJSONArray("Products");
 
         for (int i = 0; i < jsonArray.length(); i++) {
+            ArrayList<Skus> skusArrayList = new ArrayList<>();
+            ArrayList<Sellers> sellersArrayList = new ArrayList<>();
+            ArrayList<Images> imagesArrayList = new ArrayList<>();
+
+            Product product = new Product();
             JSONObject jsonObject = jsonArray.getJSONObject(i);
 
             product.setAvailability(jsonObject.getBoolean("Availability"));
-            product.setSkusArrayList(parseSkuFromJson(jsonObject));
+            product.setSkusArrayList(parseSkuFromJson(jsonObject, skusArrayList, sellersArrayList, imagesArrayList));
 
             productArrayList.add(product);
         }
+
         return productArrayList;
     }
 
-    private static ArrayList<Skus> parseSkuFromJson(JSONObject response) throws JSONException {
+    private static ArrayList<Skus> parseSkuFromJson(JSONObject response, ArrayList<Skus> skusArrayList, ArrayList<Sellers> sellersArrayList, ArrayList<Images> imagesArrayList) throws JSONException {
         JSONArray jsonArray = response.getJSONArray("Skus");
+        Skus skus = new Skus();
 
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-            Skus skus = new Skus();
             skus.setId(jsonObject.getString("Id"));
             Log.d("SKU ID", jsonObject.getString("Id"));
             skus.setName(jsonObject.getString("Name"));
@@ -57,8 +56,8 @@ public class JsonUtils {
             skus.setOrder(jsonObject.getString("Order"));
             Log.d("SKU ORDER", jsonObject.getString("Order"));
 
-            skus.setSellersArrayList(parseSellersFromjson(jsonObject));
-            skus.setImagesArrayList(parseImagesFromjson(jsonObject));
+            skus.setSellersArrayList(parseSellersFromjson(jsonObject, sellersArrayList));
+            skus.setImagesArrayList(parseImagesFromjson(jsonObject, imagesArrayList));
 
             skusArrayList.add(skus);
         }
@@ -66,9 +65,7 @@ public class JsonUtils {
         return skusArrayList;
     }
 
-    private static ArrayList<Sellers> parseSellersFromjson(JSONObject response) throws JSONException {
-
-
+    private static ArrayList<Sellers> parseSellersFromjson(JSONObject response, ArrayList<Sellers> sellersArrayList) throws JSONException {
         JSONArray jsonArray = response.getJSONArray("Sellers");
 
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -90,7 +87,7 @@ public class JsonUtils {
         return sellersArrayList;
     }
 
-    private static ArrayList<Images> parseImagesFromjson(JSONObject response) throws JSONException {
+    private static ArrayList<Images> parseImagesFromjson(JSONObject response, ArrayList<Images> imagesArrayList) throws JSONException {
         JSONArray jsonArray = response.getJSONArray("Images");
 
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -106,15 +103,18 @@ public class JsonUtils {
     }
 
     public static ArrayList<Category> parseCategoryFromJson(JSONObject response) throws JSONException {
+        ArrayList<Category> categoryArrayList = new ArrayList<>();
+
         JSONArray jsonArray = response.getJSONArray("Categories");
 
         for (int i = 0; i < jsonArray.length(); i++) {
+            ArrayList<SubCategory> subCategoryArrayList = new ArrayList<>();
             JSONObject jsonObject = jsonArray.getJSONObject(i);
 
             Category category = new Category();
             category.setId(jsonObject.getInt("Id"));
             category.setName(jsonObject.getString("Name"));
-            category.setSubCategoryArrayList(parseSubcategoryFromJson(jsonObject));
+            category.setSubCategoryArrayList(parseSubcategoryFromJson(jsonObject, subCategoryArrayList));
 
             categoryArrayList.add(category);
 
@@ -123,7 +123,7 @@ public class JsonUtils {
         return categoryArrayList;
     }
 
-    private static ArrayList<SubCategory> parseSubcategoryFromJson(JSONObject responde) throws JSONException {
+    private static ArrayList<SubCategory> parseSubcategoryFromJson(JSONObject responde, ArrayList<SubCategory> subCategoryArrayList) throws JSONException {
         JSONArray jsonArray = responde.getJSONArray("SubCategories");
 
         for (int i = 0; i < jsonArray.length(); i++) {

@@ -38,11 +38,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         Product product = productArrayList.get(position);
 
-        holder.tvProductName.setText(product.getSkusArrayList().get(position).getName());
-        holder.tvProductPrice.setText("R$: " + String.valueOf(product.getSkusArrayList().get(position).getSellersArrayList().get(position).getPrice()));
-        holder.tvProductInstallment.setText(String.valueOf(product.getSkusArrayList().get(position).getSellersArrayList().get(position).getCount()) + "x de " + String.valueOf(product.getSkusArrayList().get(position).getSellersArrayList().get(position).getValue()));
+        holder.tvProductName.setText(product.getSkusArrayList().get(0).getName());
+        holder.tvProductPrice.setText("R$: " + String.valueOf(product.getSkusArrayList().get(0).getSellersArrayList().get(0).getPrice()));
+        holder.tvProductInstallment.setText(String.valueOf(product.getSkusArrayList().get(0).getSellersArrayList().get(0).getCount()) + "x de " + String.valueOf(product.getSkusArrayList().get(0).getSellersArrayList().get(0).getValue()));
         Picasso.with(context)
-                .load(product.getSkusArrayList().get(position).getImagesArrayList().get(position).getImageUrl())
+                .load(product.getSkusArrayList().get(0).getImagesArrayList().get(0).getImageUrl())
                 .into(holder.image);
     }
 
