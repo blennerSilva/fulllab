@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
         errorBtn = findViewById(R.id.errorbutton);
 
         awesomeProgressDialog = new AwesomeProgressDialog(MainActivity.this).setColoredCircle(R.color.dialogErrorBackgroundColor);
-        awesomeProgressDialog.show();
 
         errorBtn.setOnClickListener(view -> requestProductList());
         Pushwoosh.getInstance().registerForPushNotifications();
@@ -77,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                awesomeProgressDialog.show();
                 searchProductList(query);
                 if (!searchView.isIconified()) {
                     searchView.setIconified(true);
@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestProductList() {
+        awesomeProgressDialog.show();
         AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         params.put("Query", " ");
@@ -179,6 +180,8 @@ public class MainActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+                awesomeProgressDialog.hide();
 
                 productAdapter = new ProductAdapter(MainActivity.this, productArrayList);
                 recyclerView.setAdapter(productAdapter);
