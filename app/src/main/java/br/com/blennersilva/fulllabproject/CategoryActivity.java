@@ -8,7 +8,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeProgressDialog;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -26,6 +28,7 @@ public class CategoryActivity extends AppCompatActivity {
     RecyclerView rvCategory;
     ArrayList<Category> categoryArrayList;
     CategoryAdapter categoryAdapter;
+    AwesomeProgressDialog awesomeProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,10 @@ public class CategoryActivity extends AppCompatActivity {
         categoryArrayList = new ArrayList<>();
 
         rvCategory = findViewById(R.id.rvCategory);
+
+        awesomeProgressDialog = new AwesomeProgressDialog(this).setColoredCircle(R.color.dialogErrorBackgroundColor);
+
+        awesomeProgressDialog.show();
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         rvCategory.setLayoutManager(mLayoutManager);
@@ -66,11 +73,14 @@ public class CategoryActivity extends AppCompatActivity {
 
                 categoryAdapter = new CategoryAdapter(CategoryActivity.this, categoryArrayList);
                 rvCategory.setAdapter(categoryAdapter);
+                awesomeProgressDialog.hide();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
+                Toast.makeText(CategoryActivity.this, "Falha na requisicao", Toast.LENGTH_SHORT).show();
+                awesomeProgressDialog.hide();
             }
         });
     }

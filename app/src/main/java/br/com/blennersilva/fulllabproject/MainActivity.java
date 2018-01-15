@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeProgressDialog;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     TextView errorText;
     ImageView errorImg;
     Button errorBtn;
+    AwesomeProgressDialog awesomeProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +55,10 @@ public class MainActivity extends AppCompatActivity {
         errorImg = findViewById(R.id.errorImg);
         errorBtn = findViewById(R.id.errorbutton);
 
-        errorBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                requestProductList();
-            }
-        });
+        awesomeProgressDialog = new AwesomeProgressDialog(MainActivity.this).setColoredCircle(R.color.dialogErrorBackgroundColor);
+        awesomeProgressDialog.show();
+
+        errorBtn.setOnClickListener(view -> requestProductList());
         Pushwoosh.getInstance().registerForPushNotifications();
         recyclerView = findViewById(R.id.rvProducts);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
                 productAdapter = new ProductAdapter(MainActivity.this, productArrayList);
                 recyclerView.setAdapter(productAdapter);
+                awesomeProgressDialog.hide();
                 hideErro();
             }
 
@@ -130,18 +131,22 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
                 showError();
+                awesomeProgressDialog.hide();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
                 showError();
+                awesomeProgressDialog.hide();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 super.onFailure(statusCode, headers, responseString, throwable);
                 showError();
+                awesomeProgressDialog.hide();
+
             }
         });
     }
